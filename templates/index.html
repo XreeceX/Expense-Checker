@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .alert {
+            margin-top: 20px;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        .expense-list {
+            margin-bottom: 30px;
+        }
+        .form-control {
+            margin-bottom: 10px;
+        }
+        .btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Expense Tracker</h1>
+
+        {% if alert %}
+        <div class="alert alert-danger text-center">
+            {{ alert }}
+        </div>
+        {% endif %}
+
+        <ul class="list-group expense-list">
+            {% for expense in expenses %}
+            <li class="list-group-item d-flex justify-content-between">
+                <span>{{ expense.description }} - ₹{{ expense.amount }}</span>
+                <!-- Remove Button -->
+                <form action="/remove_expense" method="POST" style="margin-left: 20px;">
+                    <input type="hidden" name="expense_id" value="{{ loop.index0 }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <p><strong>Total Expenses:</strong> ₹{{ total }}</p>
+        <p><strong>Current Budget:</strong> ₹{{ budget }}</p>
+
+        <h3>Add a New Expense</h3>
+        <form action="/" method="POST">
+            <input type="text" id="description" name="description" placeholder="Expense description" class="form-control" required>
+            <input type="number" step="1" id="amount" name="amount" placeholder="Amount (₹)" class="form-control" required min="0">
+            <button type="submit" class="btn btn-primary btn-block">Add Expense</button>
+        </form>
+
+        <br>
+        <a href="/set_budget" class="btn btn-outline-secondary btn-block">Change Budget</a>
+
+        <h3 class="mt-4">Removed Expenses History</h3>
+        <ul class="list-group">
+            {% for expense in removed_expenses %}
+            <li class="list-group-item">{{ expense.description }} - ₹{{ expense.amount }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

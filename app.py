@@ -9,11 +9,11 @@ removed_expenses = []
 # Default budget
 budget = 0
 
-@app.route("/", methods=["GET", "POST"])
+@app.route('/', methods=["GET", "POST"])
 def index():
     global expenses
     global budget
-    
+
     if request.method == "POST":
         # Adding a new expense
         description = request.form['description']
@@ -29,6 +29,16 @@ def index():
         alert = "You've exceeded the budget!"
 
     return render_template("index.html", expenses=expenses, total=total, budget=budget, alert=alert, removed_expenses=removed_expenses)
+
+
+@app.route("/chart", methods=["GET","POST"])
+def chart():
+    monthly_expenses = sum(expense['amount'] for expense in expenses) 
+    monthly_budget = budget if budget else 0
+    monthly_expenses = monthly_expenses if monthly_expenses else 0
+
+    return render_template("chart.html", monthly_expenses=monthly_expenses, monthly_budget=monthly_budget)
+
 
 @app.route("/remove_expense", methods=["POST"])
 def remove_expense():

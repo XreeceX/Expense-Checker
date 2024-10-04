@@ -1,1 +1,1 @@
-flask_sqlalchemy
+sqlite:///expenses.db

@@ -1,63 +1,107 @@
 from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Store expenses and removed expenses
-expenses = []
-removed_expenses = []
+# Configure SQLite database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Default budget
-budget = 0
+# Initialize the database
+db = SQLAlchemy(app)
+
+# Database model for expenses
+class Expense(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(100), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    date_added = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+# Database model for budget
+class Budget(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Float, nullable=False)
+
+# Create the database
+with app.app_context():
+    db.create_all()
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    global expenses
-    global budget
+    # Load budget from the database, if it exists
+    budget_entry = Budget.query.first()
+    budget = budget_entry.value if budget_entry else 0
 
     if request.method == "POST":
         # Adding a new expense
         description = request.form['description']
         amount = float(request.form['amount'])
-        expenses.append({"description": description, "amount": amount})
+        new_expense = Expense(description=description, amount=amount)
+        db.session.add(new_expense)
+        db.session.commit()
 
-    # Calculate the total every time the page is loaded
-    total = sum(expense['amount'] for expense in expenses)
+    # Retrieve all expenses from the database
+    expenses = Expense.query.all()
+
+    # Calculate the total expenses
+    total = sum(expense.amount for expense in expenses)
 
     # Budget alert
     alert = None
     if total > budget:
         alert = "You've exceeded the budget!"
 
-    return render_template("index.html", expenses=expenses, total=total, budget=budget, alert=alert, removed_expenses=removed_expenses)
+    return render_template("index.html", expenses=expenses, total=total, budget=budget, alert=alert)
 
-
-@app.route("/chart", methods=["GET","POST"])
+@app.route("/chart")
 def chart():
-    monthly_expenses = sum(expense['amount'] for expense in expenses) 
-    monthly_budget = budget if budget else 0
-    monthly_expenses = monthly_expenses if monthly_expenses else 0
-
+    # Get total expenses for the chart
+    monthly_expenses = sum(expense.amount for expense in Expense.query.all())
+    
+    # Load budget for the chart
+    budget_entry = Budget.query.first()
+    monthly_budget = budget_entry.value if budget_entry else 0
+    
     return render_template("chart.html", monthly_expenses=monthly_expenses, monthly_budget=monthly_budget)
-
 
 @app.route("/remove_expense", methods=["POST"])
 def remove_expense():
-    global expenses, removed_expenses
-    # Find the expense by its index and remove it
     expense_id = int(request.form['expense_id'])
-    removed_expense = expenses.pop(expense_id)
     
-    # Add the removed expense to the history
-    removed_expenses.append(removed_expense)
+    # Debugging output to check what's happening
+    print(f"Attempting to remove expense with ID: {expense_id}")
+    
+    # Find the expense to delete
+    expense_to_delete = Expense.query.get(expense_id)
+    
+    if expense_to_delete:
+        db.session.delete(expense_to_delete)
+        db.session.commit()
+        print(f"Removed expense: {expense_to_delete.description}")
+    else:
+        print(f"No expense found with ID: {expense_id}")
     
     return redirect(url_for("index"))
 
+
 @app.route("/set_budget", methods=["GET", "POST"])
 def set_budget():
-    global budget
     if request.method == "POST":
         # Set new budget
-        budget = float(request.form['budget'])
+        budget_value = float(request.form['budget'])
+
+        # Check if there's already a budget set
+        existing_budget = Budget.query.first()
+        
+        if existing_budget:
+            # Update the existing budget
+            existing_budget.value = budget_value
+        else:
+            # Create a new budget entry
+            new_budget = Budget(value=budget_value)
+            db.session.add(new_budget)
+        
+        db.session.commit()
         return redirect(url_for("index"))
 
     return render_template("set_budget.html")

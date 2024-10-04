@@ -4,39 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense vs Budget Chart</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
-    </style>
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <h1>Monthly Expenses vs Budget</h1>
-        <canvas id="expensesChart" style="width: 80%;"></canvas>
+        <canvas id="expensesChart"></canvas>
         <br><br>
         <a href="/" class="btn btn-primary">Back to Tracker</a>
         
-        <h1>Monthly Budget and Expenses</h1>
+        <h2>Monthly Budget and Expenses</h2>
         <p>Monthly Expenses: ₹{{ monthly_expenses }}</p>
         <p>Monthly Budget: ₹{{ monthly_budget }}</p>
-        
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const expensesChartCtx = document.getElementById('expensesChart').getContext('2d');
         const expensesChart = new Chart(expensesChartCtx, {
-            type: 'bar', 
+            type: 'bar',
             data: {
-                labels: ['Total Expenses', 'Budget'], // Labels for the bars
+                labels: ['Total Expenses', 'Budget'],
                 datasets: [{
                     label: 'Amount (₹)',
-                    data: [{{ monthly_expenses }}, {{ monthly_budget }}], // Data for expenses and budget
+                    data: [{{ monthly_expenses|default(0) }}, {{ monthly_budget|default(0) }}],
                     backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
                     borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
                     borderWidth: 1
@@ -48,8 +39,4 @@
                         beginAtZero: true
                     }
                 }
-            }
-        });
-    </script>
-</body>
-</html>
+           

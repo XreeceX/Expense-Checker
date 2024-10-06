@@ -4,98 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Tracker</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/bulma.min.css">
     <style>
         body {
-            background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
             font-family: 'Poppins', sans-serif;
+            overflow: hidden;
         }
         .container {
             margin-top: 50px;
-            background-color: #ffffff;
             padding: 40px;
             border-radius: 15px;
-            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-        }
-        h1 {
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-        .expense-list {
-            margin-bottom: 20px;
-        }
-        .form-control {
-            border-radius: 30px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #f3f3f3;
-        }
-        .btn {
-            border-radius: 30px;
-            padding: 10px 30px;
-            font-weight: bold;
+            background-color: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
         }
-        .btn-primary {
-            background-color: #007bff;
+        .container:hover {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        h1.title {
+            color: #ffffff;
+        }
+        .notification {
+            background-color: rgba(255, 0, 0, 0.8);
+            color: #fff;
             border: none;
+            margin-bottom: 20px;
         }
-        .btn-primary:hover {
-            background-color: #0056b3;
+        .list {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
         }
-        .remove-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 5px 15px;
-            margin-left: 10px;
+        .list-item {
+            color: #ffffff;
+            border: 1px solid transparent;
+            border-radius: 5px;
+            padding: 10px;
+            transition: border-color 0.3s;
         }
-        .remove-btn:hover {
-            background-color: #c82333;
+        .list-item:hover {
+            border-color: #00d1b2;
+            box-shadow: 0 0 10px rgba(0, 209, 178, 0.5);
         }
-        .total-expenses, .current-budget {
-            font-size: 1.2rem;
-            margin-top: 20px;
-            font-weight: bold;
-            text-align: center;
-            color: #333;
+        .button.is-danger {
+            background-color: #ff3860;
+            transition: background-color 0.3s;
         }
-        .alert {
-            font-weight: bold;
-            text-align: center;
+        .button.is-danger:hover {
+            background-color: #ff4d6e;
         }
-        .charts-container {
-            margin-top: 50px;
+        .button.is-primary {
+            background-color: #00d1b2;
+            transition: background-color 0.3s;
+        }
+        .button.is-primary:hover {
+            background-color: #00b59c;
         }
         footer {
             margin-top: 40px;
             text-align: center;
             font-size: 14px;
-            color: #777;
+            color: #ddd;
+        }
+        .total-expenses, .current-budget {
+            color: #ffffff;
+            font-weight: bold;
+        }
+        @keyframes backgroundAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .dynamic-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #606c88, #3f4c6b);
+            background-size: 300% 300%;
+            animation: backgroundAnimation 15s ease infinite;
+            z-index: -1;
         }
     </style>
 </head>
 <body>
+    <div class="dynamic-background"></div> <!-- Dynamic Background -->
     <div class="container">
-        <h1>Expense Tracker <i class="fas fa-money-bill-wave"></i></h1>
+        <h1 class="title has-text-centered">Expense Tracker <i class="fas fa-money-bill-wave"></i></h1>
 
         {% if alert %}
-        <div class="alert alert-danger">
+        <div class="notification is-danger">
             {{ alert }}
         </div>
         {% endif %}
 
-        <ul class="list-group expense-list">
+        <ul class="list expense-list">
             {% for expense in expenses %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
+            <li class="list-item is-flex is-justify-content-space-between">
                 <span>{{ expense.description }} - ₹{{ expense.amount }}</span>
                 <form action="{{ url_for('remove_expense') }}" method="POST">
                     <input type="hidden" name="expense_id" value="{{ expense.id }}">
-                    <button type="submit" class="remove-btn">Delete</button>
+                    <button type="submit" class="button is-danger is-small">Delete</button>
                 </form>
             </li>
             {% endfor %}        
@@ -105,20 +120,32 @@
         <p class="current-budget">Current Budget: ₹{{ budget }}</p>
 
         <form action="/" method="POST" class="mt-4">
-            <div class="input-group">
-                <input type="text" id="description" name="description" placeholder="Expense description" class="form-control" required>
-                <input type="number" step="1" id="amount" name="amount" placeholder="Amount (₹)" class="form-control" required min="0">
+            <div class="field">
+                <label class="label has-text-white">Expense Description</label>
+                <div class="control">
+                    <input type="text" id="description" name="description" class="input" placeholder="Expense description" required>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-block mt-3">Add Expense</button>
+            <div class="field">
+                <label class="label has-text-white">Amount (₹)</label>
+                <div class="control">
+                    <input type="number" step="1" id="amount" name="amount" class="input" placeholder="Amount (₹)" required min="0">
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <button type="submit" class="button is-primary">Add Expense</button>
+                </div>
+            </div>
         </form>
 
         <br>
-        <a href="/set_budget" class="btn btn-outline-secondary btn-block">Change Budget</a>
+        <a href="/set_budget" class="button is-light">Change Budget</a>
 
-        <h3 class="mt-4">Removed Expenses History</h3>
-        <ul class="list-group">
+        <h3 class="mt-4 title is-4 has-text-white">History</h3>
+        <ul class="list">
             {% for expense in removed_expenses %}
-            <li class="list-group-item">{{ expense.description }} - ₹{{ expense.amount }}</li>
+            <li class="list-item">{{ expense.description }} - ₹{{ expense.amount }}</li>
             {% endfor %}
         </ul>
 
@@ -142,12 +169,12 @@
                     label: '₹ Amount',
                     data: [{{ total }}, {{ budget }}],
                     backgroundColor: [
-                        'rgba(255, 99, 132, 0.6)',
-                        'rgba(54, 162, 235, 0.6)'
+                        'rgba(0, 209, 178, 0.6)',
+                        'rgba(255, 99, 132, 0.6)'
                     ],
                     borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)'
+                        'rgba(0, 209, 178, 1)',
+                        'rgba(255, 99, 132, 1)'
                     ],
                     borderWidth: 1
                 }]

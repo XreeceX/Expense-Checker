@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense vs Budget Chart</title>
-    <link rel="stylesheet" href="static/css/bulma.min.css"> 
+    <title>Expense Chart</title>
+    <link rel="stylesheet" href="/static/css/bulma.min.css">
     <style>
         body {
             background: linear-gradient(135deg, #232526 0%, #414345 100%);
@@ -24,27 +24,32 @@
         .container:hover {
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
-        h1 {
+        h1.title {
             color: #ffffff;
-            text-align: center;
+            text-align: center; /* Center the title */
         }
-        h2 {
-            color: #ffffff;
-            margin-top: 20px;
+        .chart-container {
+            position: relative;
+            width: 400px; /* Fixed width */
+            height: 400px; /* Fixed height */
+            margin: auto; /* Centering the chart */
+        }
+        canvas {
+            width: 100% !important; /* Make canvas responsive */
+            height: 100% !important; /* Make canvas responsive */
         }
         .back-button {
-            display: block;
-            margin: 20px auto;
-            text-align: center;
+            display: inline-block;
+            margin-top: 20px;
             padding: 10px 20px;
-            background-color: #00d1b2;
-            color: white;
-            border: none;
+            background-color: #000000; /* Custom background for the button */
+            color: #fff;
+            text-decoration: none;
             border-radius: 5px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s ease;
         }
         .back-button:hover {
-            background-color: #00b59c;
+            background-color: #1e1e1e; /* Darker on hover */
         }
         footer {
             margin-top: 40px;
@@ -71,44 +76,70 @@
     </style>
 </head>
 <body>
-    <div class="dynamic-background"></div> <!-- Dynamic Background -->
+
+    <div class="dynamic-background"></div> 
     <div class="container">
         <h1>Monthly Expenses vs Budget</h1>
-        <canvas id="expensesChart"></canvas>
+        <div class="chart-container">
+            <canvas id="myChart"></canvas>
+        </div>
         <br><br>
         <a href="/" class="back-button">Back to Tracker</a>
-        
-        <h2>Monthly Budget and Expenses</h2>
-        <p style="color: #ffffff;">Monthly Expenses: ₹{{ monthly_expenses }}</p>
-        <p style="color: #ffffff;">Monthly Budget: ₹{{ monthly_budget }}</p>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const expensesChartCtx = document.getElementById('expensesChart').getContext('2d');
-        const expensesChart = new Chart(expensesChartCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Total Expenses', 'Budget'],
-                datasets: [{
-                    label: 'Amount (₹)',
-                    data: [{{ monthly_expenses|default(0) }}, {{ monthly_budget|default(0) }}],
-                    backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
-                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
+        <!-- Include Chart.js from CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        
+        <script>
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Total Expenses', 'Budget'],
+                    datasets: [{
+                        label: 'Amount (₹)',
+                        data: [{{ total }}, {{ budget }}],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)'
+                        ],
+                        borderWidth: 1,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true, // Ensures it's a perfect circle
+                    cutout: '50%', // Doughnut chart cutout
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: '#ffffff' // White text for the legend
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff'
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true
                     }
                 }
-            }
-        });
-    </script>
+            });
+        </script>
+    </div>
+
     <footer>
-        <p>Track your expenses wisely! <i class="fas fa-smile"></i></p>
+        <p>Track your expenses visually! <i class="fas fa-chart-pie"></i></p>
     </footer>
+
 </body>
 </html>

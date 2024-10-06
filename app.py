@@ -56,13 +56,15 @@ def index():
 @app.route("/chart")
 def chart():
     # Get total expenses for the chart
-    monthly_expenses = sum(expense.amount for expense in Expense.query.all())
-    
+    expenses = Expense.query.all()
+    monthly_expenses = sum(expense.amount for expense in expenses)
+
     # Load budget for the chart
     budget_entry = Budget.query.first()
     monthly_budget = budget_entry.value if budget_entry else 0
-    
-    return render_template("chart.html", monthly_expenses=monthly_expenses, monthly_budget=monthly_budget)
+
+    return render_template("chart.html", total=monthly_expenses, budget=monthly_budget)
+
 
 @app.route("/remove_expense", methods=["POST"])
 def remove_expense():

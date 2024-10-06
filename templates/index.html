@@ -48,8 +48,8 @@
             transition: border-color 0.3s;
         }
         .list-item:hover {
-            border-color: #00d1b2;
-            box-shadow: 0 0 10px rgba(0, 209, 178, 0.5);
+            border-color: #cb8016;
+            box-shadow: 0 0 10px rgba(255, 145, 0, 0.5);
         }
         .button.is-danger {
             background-color: #ff3860;
@@ -59,11 +59,11 @@
             background-color: #ff4d6e;
         }
         .button.is-primary {
-            background-color: #00d1b2;
+            background-color: #000000;
             transition: background-color 0.3s;
         }
         .button.is-primary:hover {
-            background-color: #00b59c;
+            background-color: #000000;
         }
         footer {
             margin-top: 40px;
@@ -74,11 +74,6 @@
         .total-expenses, .current-budget {
             color: #ffffff;
             font-weight: bold;
-        }
-        @keyframes backgroundAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
         .dynamic-background {
             position: absolute;
@@ -91,10 +86,15 @@
             animation: backgroundAnimation 15s ease infinite;
             z-index: -1;
         }
+        @keyframes backgroundAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
     </style>
 </head>
 <body>
-    <div class="dynamic-background"></div> <!-- Dynamic Background -->
+    <div class="dynamic-background"></div>
     <div class="container">
         <h1 class="title has-text-centered">Expense Tracker <i class="fas fa-money-bill-wave"></i></h1>
 
@@ -115,7 +115,7 @@
             </li>
             {% endfor %}        
         </ul>
-        
+
         <p class="total-expenses">Total Expenses: ₹{{ total }}</p>
         <p class="current-budget">Current Budget: ₹{{ budget }}</p>
 
@@ -140,53 +140,13 @@
         </form>
 
         <br>
-        <a href="/set_budget" class="button is-light">Change Budget</a>
-
-        <h3 class="mt-4 title is-4 has-text-white">History</h3>
-        <ul class="list">
-            {% for expense in removed_expenses %}
-            <li class="list-item">{{ expense.description }} - ₹{{ expense.amount }}</li>
-            {% endfor %}
-        </ul>
-
-        <div class="charts-container">
-            <canvas id="myChart"></canvas>
-        </div>
+        <a href="/set_budget" class="button is-primary">Change Budget</a>
+        <br>
+        <a href="/chart" class="button is-primary mt-4">View Expense Chart</a>
     </div>
 
     <footer>
         <p>Track your expenses wisely! <i class="fas fa-smile"></i></p>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Expenses', 'Budget'],
-                datasets: [{
-                    label: '₹ Amount',
-                    data: [{{ total }}, {{ budget }}],
-                    backgroundColor: [
-                        'rgba(0, 209, 178, 0.6)',
-                        'rgba(255, 99, 132, 0.6)'
-                    ],
-                    borderColor: [
-                        'rgba(0, 209, 178, 1)',
-                        'rgba(255, 99, 132, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    </script>
 </body>
 </html>

@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for,Response
 from flask_sqlalchemy import SQLAlchemy
+import csv
+from io import StringIO
 
 app = Flask(__name__)
 
@@ -39,9 +41,6 @@ def index():
         new_expense = Expense(description=description, amount=amount)
         db.session.add(new_expense)
         db.session.commit()
-
-        # Redirect to avoid duplicate entries on page reload
-        return redirect(url_for('index'))
 
     # Retrieve all expenses from the database
     expenses = Expense.query.all()
@@ -111,6 +110,32 @@ def set_budget():
 
     return render_template("set_budget.html")
 
+@app.route("/export", methods=["GET"])
+def export_expenses():
+    # Retrieve all expenses from the database
+    expenses = Expense.query.all()
+    budget_entry = Budget.query.first()
+    budget = budget_entry.value if budget_entry else 0
+
+    if not expenses:
+        return "No expenses found", 404  
+
+    # Create a CSV output
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Write CSV headers
+    writer.writerow(["Date", "Item", "Amount", "Total","Remaining"])
+    
+    # Write expense data into the CSV file
+    total = 0
+    for expense in expenses:
+        total += expense.amount
+        writer.writerow([expense.date_added.strftime("%Y-%m-%d"), expense.description, expense.amount, total,budget-total])
+    
+    # Prepare the response to send the CSV file
+    output.seek(0)
+    return Response(output, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=expenses.csv"})
 
 
 if __name__ == "__main__":

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Tracker</title>
     <link rel="stylesheet" href="static/css/bulma.min.css">
+    <style>
+        
+    </style>
 </head>
 <body>
     <div class="dynamic-background"></div>
@@ -28,11 +31,16 @@
             </li>
             {% endfor %}        
         </ul>
+        
         <div class="is-flex is-justify-content-space-between is-align-items-center mt-4">
             <p class="total-expenses">Total Expenses: ₹{{ total }}</p>
-            <button id="exportButton" class="button is-primary">Export Expenses</button>
+            <div>
+                <button id="exportButton" class="button is-primary">Export Expenses</button>
+            </div>
         </div>
+        
         <p class="current-budget">Current Budget: ₹{{ budget }}</p>
+
         
 
         <form action="/" method="POST" class="mt-4">
@@ -59,14 +67,33 @@
         <a href="/set_budget" class="button is-primary">Change Budget</a>
         <br>
         <a href="/chart" class="button is-primary mt-4">View Expense Chart</a>
+        <br>
         
-    </div>
+        <h3 class="history-title">History</h3>
+        <span class="toggle-dropdown" onclick="toggleDropdown(this)">^</span>
+        <div id="deletedExpensesDropdown" class="dropdown">
+            <h2 class="subtitle">Deleted Expenses</h2>
+            <ul class="list">
+                {% for deleted_expense in deleted_expenses %}
+                <li class="list-item">{{ deleted_expense.description }} - ₹{{ deleted_expense.amount }}</li>
+                {% endfor %}
+            </ul>
+        </div>
 
+    </div>
     
 
     <footer>
         <p>Track your expenses wisely! <i class="fas fa-smile"></i></p>
     </footer>
     <script src="static/js/exportData.js"></script>
+    <script>
+        function toggleDropdown(element) {
+            const dropdown = document.getElementById("deletedExpensesDropdown");
+            dropdown.style.display = dropdown.style.display === "none" || dropdown.style.display === "" ? "block" : "none";
+            dropdown.classList.toggle("show");
+            element.classList.toggle("flipped");
+        }
+    </script>
 </body>
 </html>

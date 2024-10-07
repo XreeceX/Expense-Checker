@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for,Response
+from flask import Flask, render_template, request, redirect, url_for, Response
 from flask_sqlalchemy import SQLAlchemy
 import csv
 from io import StringIO
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -23,6 +24,13 @@ class Expense(db.Model):
 class Budget(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.Float, nullable=False)
+
+# Database model for deleted expenses
+class DeletedExpense(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(100), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    date_deleted = db.Column(db.DateTime, default=datetime.now)
 
 # Create the database
 with app.app_context():
@@ -53,7 +61,10 @@ def index():
     if total > budget:
         alert = "You've exceeded the budget!"
 
-    return render_template("index.html", expenses=expenses, total=total, budget=budget, alert=alert)
+    # Retrieve deleted expenses for the history
+    deleted_expenses = DeletedExpense.query.all()
+
+    return render_template("index.html", expenses=expenses, total=total, budget=budget, alert=alert, deleted_expenses=deleted_expenses)
 
 @app.route("/chart")
 def chart():
@@ -67,26 +78,21 @@ def chart():
 
     return render_template("chart.html", total=monthly_expenses, budget=monthly_budget)
 
-
 @app.route("/remove_expense", methods=["POST"])
 def remove_expense():
     expense_id = int(request.form['expense_id'])
-    
-    # Debugging output to check what's happening
-    print(f"Attempting to remove expense with ID: {expense_id}")
     
     # Find the expense to delete
     expense_to_delete = Expense.query.get(expense_id)
     
     if expense_to_delete:
+        # Store deleted expense in DeletedExpense table
+        deleted_expense = DeletedExpense(description=expense_to_delete.description, amount=expense_to_delete.amount)
+        db.session.add(deleted_expense)
         db.session.delete(expense_to_delete)
         db.session.commit()
-        print(f"Removed expense: {expense_to_delete.description}")
-    else:
-        print(f"No expense found with ID: {expense_id}")
     
     return redirect(url_for("index"))
-
 
 @app.route("/set_budget", methods=["GET", "POST"])
 def set_budget():
@@ -125,18 +131,17 @@ def export_expenses():
     writer = csv.writer(output)
     
     # Write CSV headers
-    writer.writerow(["Date", "Item", "Amount", "Total","Remaining"])
+    writer.writerow(["Date", "Item", "Amount", "Total", "Remaining"])
     
     # Write expense data into the CSV file
     total = 0
     for expense in expenses:
         total += expense.amount
-        writer.writerow([expense.date_added.strftime("%Y-%m-%d"), expense.description, expense.amount, total,budget-total])
+        writer.writerow([expense.date_added.strftime("%Y-%m-%d"), expense.description, expense.amount, total, budget - total])
     
     # Prepare the response to send the CSV file
     output.seek(0)
     return Response(output, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=expenses.csv"})
-
 
 if __name__ == "__main__":
     app.run(debug=True)

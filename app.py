@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for,Response
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -39,6 +39,9 @@ def index():
         new_expense = Expense(description=description, amount=amount)
         db.session.add(new_expense)
         db.session.commit()
+
+        # Redirect to avoid duplicate entries on page reload
+        return redirect(url_for('index'))
 
     # Retrieve all expenses from the database
     expenses = Expense.query.all()
@@ -107,6 +110,8 @@ def set_budget():
         return redirect(url_for("index"))
 
     return render_template("set_budget.html")
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

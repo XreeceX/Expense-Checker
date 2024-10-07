@@ -4,76 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Chart</title>
+
     <link rel="stylesheet" href="/static/css/bulma.min.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, #232526 0%, #414345 100%);
-            font-family: 'Poppins', sans-serif;
-            overflow: hidden;
-        }
-        .container {
-            margin-top: 50px;
-            padding: 40px;
-            border-radius: 15px;
-            background-color: rgba(0, 0, 0, 0.7);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        .container:hover {
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-        }
-        h1.title {
-            color: #ffffff;
-            text-align: center; /* Center the title */
-        }
-        .chart-container {
-            position: relative;
-            width: 400px; /* Fixed width */
-            height: 400px; /* Fixed height */
-            margin: auto; /* Centering the chart */
-        }
-        canvas {
-            width: 100% !important; /* Make canvas responsive */
-            height: 100% !important; /* Make canvas responsive */
-        }
-        .back-button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #000000; /* Custom background for the button */
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .back-button:hover {
-            background-color: #1e1e1e; /* Darker on hover */
-        }
-        footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 14px;
-            color: #ddd;
-        }
-        .dynamic-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #606c88, #3f4c6b);
-            background-size: 300% 300%;
-            animation: backgroundAnimation 15s ease infinite;
-            z-index: -1;
-        }
-        @keyframes backgroundAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-    </style>
 </head>
 <body>
 
@@ -84,53 +16,44 @@
             <canvas id="myChart"></canvas>
         </div>
         <br><br>
-        <a href="/" class="back-button">Back to Tracker</a>
+        <a href="/" class="button is-primary">Back to Tracker</a>
+        <button id="exportButton" class="button is-primary">Export Expenses</button>
 
-        <!-- Include Chart.js from CDN -->
+        <script src="static/js/exportData.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         
         <script>
             const ctx = document.getElementById('myChart').getContext('2d');
             const myChart = new Chart(ctx, {
-                type: 'doughnut',
+                type: 'pie',
                 data: {
                     labels: ['Total Expenses', 'Budget'],
                     datasets: [{
                         label: 'Amount (₹)',
                         data: [{{ total }}, {{ budget }}],
                         backgroundColor: [
-                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(255, 159, 64, 0.6)',
                             'rgba(54, 162, 235, 0.6)'
                         ],
                         borderColor: [
                             'rgba(255, 99, 132, 1)',
                             'rgba(54, 162, 235, 1)'
                         ],
-                        borderWidth: 1,
-                        hoverOffset: 4
+                        borderWidth: 2,
+                        hoverOffset: 3
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true, // Ensures it's a perfect circle
-                    cutout: '50%', // Doughnut chart cutout
+                    maintainAspectRatio: true,
+                    
                     plugins: {
                         legend: {
-                            display: true,
                             position: 'top',
-                            labels: {
-                                color: '#ffffff' // White text for the legend
-                            }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#ffffff',
-                            bodyColor: '#ffffff'
+                            enabled: true
                         }
-                    },
-                    animation: {
-                        animateRotate: true,
-                        animateScale: true
                     }
                 }
             });

@@ -5,93 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Tracker</title>
     <link rel="stylesheet" href="static/css/bulma.min.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, #232526 0%, #414345 100%);
-            font-family: 'Poppins', sans-serif;
-            overflow: hidden;
-        }
-        .container {
-            margin-top: 50px;
-            padding: 40px;
-            border-radius: 15px;
-            background-color: rgba(0, 0, 0, 0.7);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        .container:hover {
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-        }
-        h1.title {
-            color: #ffffff;
-        }
-        .notification {
-            background-color: rgba(255, 0, 0, 0.8);
-            color: #fff;
-            border: none;
-            margin-bottom: 20px;
-        }
-        .list {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 20px;
-            transition: background-color 0.3s;
-        }
-        .list-item {
-            color: #ffffff;
-            border: 1px solid transparent;
-            border-radius: 5px;
-            padding: 10px;
-            transition: border-color 0.3s;
-        }
-        .list-item:hover {
-            border-color: #cb8016;
-            box-shadow: 0 0 10px rgba(255, 145, 0, 0.5);
-        }
-        .button.is-danger {
-            background-color: #ff3860;
-            transition: background-color 0.3s;
-        }
-        .button.is-danger:hover {
-            background-color: #ff4d6e;
-        }
-        .button.is-primary {
-            background-color: #000000;
-            transition: background-color 0.3s;
-        }
-        .button.is-primary:hover {
-            background-color: #000000;
-        }
-        footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 14px;
-            color: #ddd;
-        }
-        .total-expenses, .current-budget {
-            color: #ffffff;
-            font-weight: bold;
-        }
-        .dynamic-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #606c88, #3f4c6b);
-            background-size: 300% 300%;
-            animation: backgroundAnimation 15s ease infinite;
-            z-index: -1;
-        }
-        @keyframes backgroundAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-    </style>
 </head>
 <body>
     <div class="dynamic-background"></div>
@@ -115,9 +28,13 @@
             </li>
             {% endfor %}        
         </ul>
-
-        <p class="total-expenses">Total Expenses: ₹{{ total }}</p>
+        <div class="is-flex is-justify-content-space-between is-align-items-center mt-4">
+            <p class="total-expenses">Total Expenses: ₹{{ total }}</p>
+            <button id="exportButton" class="button is-primary">Export Expenses</button>
+        </div>
         <p class="current-budget">Current Budget: ₹{{ budget }}</p>
+        <script src="static/js/exportData.js"></script>
+        
 
         <form action="/" method="POST" class="mt-4">
             <div class="field">
@@ -143,6 +60,7 @@
         <a href="/set_budget" class="button is-primary">Change Budget</a>
         <br>
         <a href="/chart" class="button is-primary mt-4">View Expense Chart</a>
+        
     </div>
 
     <footer>

@@ -4,78 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Set Budget</title>
-    <link rel="stylesheet" href="static/css/bulma.min.css"> <!-- Link to Bulma CSS -->
-    <style>
-        body {
-            background-color: #000; /* Solid black background */
-            font-family: 'Poppins', sans-serif;
-        }
-        .container {
-            margin-top: 100px;
-            background-color: #222; /* Dark background for container */
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-            border: 2px solid #fff; /* White border for contrast */
-            animation: glowing-border 1.5s infinite alternate; /* Glow effect */
-        }
-        @keyframes glowing-border {
-            from {
-                border-color: #fff;
-            }
-            to {
-                border-color: #ffcc00; /* Color of glow */
-            }
-        }
-        h1 {
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 40px;
-            color: #fff; /* White text color for header */
-        }
-        .form-control {
-            border-radius: 30px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #444; /* Darker input field */
-            color: #fff; /* White text in input */
-        }
-        .form-control::placeholder {
-            color: #bbb; /* Placeholder color */
-        }
-        .btn {
-            border-radius: 30px;
-            padding: 10px 30px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            background-color: #ffcc00; /* Button color */
-            color: #000; /* Black text color */
-        }
-        .btn:hover {
-            transform: scale(1.05);
-            background-color: #e6b800; /* Darker button on hover */
-        }
-        footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 14px;
-            color: #fff; /* White footer text */
-            background-color: #222; /* Dark background for footer */
-            padding: 20px 0; /* Padding for footer */
-        }
-    </style>
+    <link rel="stylesheet" href="static/css/bulma.min.css"> 
+    
 </head>
 <body>
+    <div class="dynamic-background"></div>
     <div class="container">
-        <h1>Set Your Budget</h1>
-        <form action="/set_budget" method="POST">
-            <input type="number" step="1" id="budget" name="budget" placeholder="Enter new budget (₹)" class="form-control mb-3" required>
-            <button type="submit" class="btn btn-block">Update Budget</button>
+        <h1 class="title has-text-white">Set Your Budget</h1>
+        <form action="/set_budget" method="POST" class="mt-4">
+            <div class="field">
+                <label class="label has-text-white">New Budget (₹)</label>
+                <div class="control">
+                    <input type="number" step="1" id="budget" name="budget" class="input" placeholder="Enter new budget (₹)" required min="0">
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <a href="/" class="button is-primary">Back to Tracker</a>
+                    <button type="submit" class="button is-primary">Update Budget</button>
+                </div>
+            </div>
         </form>
+        <footer>
+            <p>Stay on top of your spending <i class="fas fa-money-bill-wave"></i></p>
+        </footer>
     </div>
 
-    <footer>
-        <p>Stay on top of your spending <i class="fas fa-money-bill-wave"></i></p>
-    </footer>
+
+   
 </body>
 </html>

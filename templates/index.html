@@ -21,13 +21,49 @@
             {% for expense in expenses %}
             <li class="list-item is-flex is-justify-content-space-between">
                 <span>{{ expense.description }} - ₹{{ expense.amount }}</span>
-                <form action="{{ url_for('remove_expense') }}" method="POST">
-                    <input type="hidden" name="expense_id" value="{{ expense.id }}">
-                    <button type="submit" class="button is-danger is-small">Delete</button>
-                </form>
+                <div class="buttons-container">
+                    <form action="{{ url_for('remove_expense') }}" method="POST" style="display:inline;">
+                        <input type="hidden" name="expense_id" value="{{ expense.id }}">
+                        <button type="submit" class="button is-danger is-small">Delete</button>
+                    </form>
+                    <button type="button" class="edit-button" data-id="{{ expense.id }}" data-description="{{ expense.description }}" data-amount="{{ expense.amount }}">Edit</button>
+                </div>
             </li>
-            {% endfor %}        
+            {% endfor %}
         </ul>
+        <div class="modal" id="editModal">
+            <div class="modal-background "></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Edit Expense</p>
+                    <button class="delete modal-close" aria-label="close"></button>
+                </header>
+                <form action="{{ url_for('update_expense') }}" method="POST">
+                    <section class="modal-card-body">
+                        <input type="hidden" id="editExpenseId" name="expense_id">
+                        <div class="field">
+                            <label class="label">Description</label>
+                            <div class="control">
+                                <input type="text" class="input" id="editDescription" name="description" required>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Amount (₹)</label>
+                            <div class="control">
+                                <input type="number" step="1" class="input" id="editAmount" name="amount" required>
+                            </div>
+                        </div>
+                    </section>
+                    <footer class="modal-card-foot">
+                        <button type="submit" class="button is-primary">Save Changes</button>
+                        <button type="button" class="modal-close"></button>
+                    </footer>
+                </form>
+            </div>
+        </div>
+
+        
         
         <div class="is-flex is-justify-content-space-between is-align-items-center mt-4">
             <p class="total-expenses">Total Expenses: ₹{{ total }}</p>
@@ -37,6 +73,7 @@
         </div>
         
         <p class="current-budget">Current Budget: ₹{{ budget }}</p>
+        <p class="remaining-budget is-size-7">Remaining Budget: ₹{{ budget - total }}</p>
 
         
 
@@ -84,6 +121,8 @@
         <p>Track your expenses wisely! <i class="fas fa-smile"></i></p>
     </footer>
     <script src="static/js/exportData.js"></script>
+    <script src="static/js/updateExpense.js"></script>
+
     <script>
         function toggleDropdown(element) {
             const dropdown = document.getElementById("deletedExpensesDropdown");

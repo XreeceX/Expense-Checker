@@ -6,73 +6,56 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Configure SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize the database
 db = SQLAlchemy(app)
 
-# Database model for expenses
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date_added = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-# Database model for budget
 class Budget(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.Float, nullable=False)
 
-# Database model for deleted expenses
 class DeletedExpense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date_deleted = db.Column(db.DateTime, default=datetime.now)
 
-# Create the database
 with app.app_context():
     db.create_all()
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    # Load budget from the database, if it exists
     budget_entry = Budget.query.first()
     budget = budget_entry.value if budget_entry else 0
 
     if request.method == "POST":
-        # Adding a new expense
         description = request.form['description']
         amount = float(request.form['amount'])
         new_expense = Expense(description=description, amount=amount)
         db.session.add(new_expense)
         db.session.commit()
-
-    # Retrieve all expenses from the database
-    expenses = Expense.query.all()
-
-    # Calculate the total expenses
+        return redirect(url_for('index'))
+    expenses = Expense.query.order_by(Expense.date_added.desc()).all()
     total = sum(expense.amount for expense in expenses)
-
-    # Budget alert
     alert = None
     if total > budget:
         alert = "You've exceeded the budget!"
-
-    # Retrieve deleted expenses for the history
+    
     deleted_expenses = DeletedExpense.query.all()
 
     return render_template("index.html", expenses=expenses, total=total, budget=budget, alert=alert, deleted_expenses=deleted_expenses)
 
 @app.route("/chart")
 def chart():
-    # Get total expenses for the chart
     expenses = Expense.query.all()
     monthly_expenses = sum(expense.amount for expense in expenses)
-
-    # Load budget for the chart
     budget_entry = Budget.query.first()
     monthly_budget = budget_entry.value if budget_entry else 0
 
@@ -81,33 +64,28 @@ def chart():
 @app.route("/remove_expense", methods=["POST"])
 def remove_expense():
     expense_id = int(request.form['expense_id'])
-    
-    # Find the expense to delete
     expense_to_delete = Expense.query.get(expense_id)
-    
+
     if expense_to_delete:
-        # Store deleted expense in DeletedExpense table
-        deleted_expense = DeletedExpense(description=expense_to_delete.description, amount=expense_to_delete.amount)
+        deleted_expense = DeletedExpense(
+            description=expense_to_delete.description,
+            amount=expense_to_delete.amount
+        )
         db.session.add(deleted_expense)
         db.session.delete(expense_to_delete)
         db.session.commit()
-    
+
     return redirect(url_for("index"))
 
 @app.route("/set_budget", methods=["GET", "POST"])
 def set_budget():
     if request.method == "POST":
-        # Set new budget
         budget_value = float(request.form['budget'])
-
-        # Check if there's already a budget set
         existing_budget = Budget.query.first()
         
         if existing_budget:
-            # Update the existing budget
             existing_budget.value = budget_value
         else:
-            # Create a new budget entry
             new_budget = Budget(value=budget_value)
             db.session.add(new_budget)
         
@@ -118,7 +96,6 @@ def set_budget():
 
 @app.route("/export", methods=["GET"])
 def export_expenses():
-    # Retrieve all expenses from the database
     expenses = Expense.query.all()
     budget_entry = Budget.query.first()
     budget = budget_entry.value if budget_entry else 0
@@ -126,22 +103,38 @@ def export_expenses():
     if not expenses:
         return "No expenses found", 404  
 
-    # Create a CSV output
     output = StringIO()
     writer = csv.writer(output)
     
-    # Write CSV headers
     writer.writerow(["Date", "Item", "Amount", "Total", "Remaining"])
     
-    # Write expense data into the CSV file
     total = 0
     for expense in expenses:
         total += expense.amount
-        writer.writerow([expense.date_added.strftime("%Y-%m-%d"), expense.description, expense.amount, total, budget - total])
+        writer.writerow([
+            expense.date_added.strftime("%Y-%m-%d"),
+            expense.description,
+            expense.amount,
+            total,
+            budget - total
+        ])
     
-    # Prepare the response to send the CSV file
     output.seek(0)
     return Response(output, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=expenses.csv"})
+
+@app.route('/update_expense', methods=['POST'])
+def update_expense():
+    expense_id = request.form['expense_id']
+    description = request.form['description']
+    amount = request.form['amount']
+
+    expense = Expense.query.get(expense_id)
+    if expense:
+        expense.description = description
+        expense.amount = amount
+        db.session.commit()
+
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     app.run(debug=True)

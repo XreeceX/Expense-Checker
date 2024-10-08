@@ -160,3 +160,8 @@ canvas {
 .field {
     margin-bottom: auto;
 }
+.buttons-container {
+    display: flex;
+    gap: 0.5rem;  
+    margin-left: auto; 
+}

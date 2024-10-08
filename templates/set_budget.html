@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Set Budget</title>
     <link rel="stylesheet" href="static/css/bulma.min.css"> 
-    
 </head>
 <body>
     <div class="dynamic-background"></div>
-    <div class="container">
+    
+    <div class="container box">
         <h1 class="title has-text-white">Set Your Budget</h1>
+        
         <form action="/set_budget" method="POST" class="mt-4">
             <div class="field">
                 <label class="label has-text-white">New Budget (₹)</label>
@@ -18,6 +19,7 @@
                     <input type="number" step="1" id="budget" name="budget" class="input" placeholder="Enter new budget (₹)" required min="0">
                 </div>
             </div>
+            
             <div class="field">
                 <div class="control">
                     <a href="/" class="button is-primary">Back to Tracker</a>
@@ -25,12 +27,11 @@
                 </div>
             </div>
         </form>
-        <footer>
-            <p>Stay on top of your spending <i class="fas fa-money-bill-wave"></i></p>
+        
+        <footer > 
+            <p>Stay on top of your spending <i class="fa-smile"></i></p>
         </footer>
     </div>
 
-
-   
 </body>
 </html>

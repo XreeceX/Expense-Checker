@@ -9,7 +9,7 @@ document.getElementById('exportButton').addEventListener('click', function() {
         .then(blob => {
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = 'expenses.csv';
+            link.download = 'Expenses.csv';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

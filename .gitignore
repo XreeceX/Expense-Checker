@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*$py.class
+instance/
+*.db
+.env
+.venv/
+venv/
+.idea/
+*.log
+.DS_Store
+tempCodeRunnerFile*

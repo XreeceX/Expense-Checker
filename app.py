@@ -1,4 +1,3 @@
-import os
 from flask import Flask, render_template, request, redirect, url_for, Response
 from flask_sqlalchemy import SQLAlchemy
 import csv
@@ -7,7 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', 'sqlite:///expenses.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -64,11 +63,8 @@ def chart():
 
 @app.route("/remove_expense", methods=["POST"])
 def remove_expense():
-    try:
-        expense_id = int(request.form['expense_id'])
-    except (ValueError, KeyError):
-        return redirect(url_for("index"))
-    expense_to_delete = db.session.get(Expense, expense_id)
+    expense_id = int(request.form['expense_id'])
+    expense_to_delete = Expense.query.get(expense_id)
 
     if expense_to_delete:
         deleted_expense = DeletedExpense(
@@ -128,20 +124,11 @@ def export_expenses():
 
 @app.route('/update_expense', methods=['POST'])
 def update_expense():
-    try:
-        expense_id = int(request.form['expense_id'])
-    except (ValueError, KeyError):
-        return redirect(url_for("index"))
-    description = request.form.get('description', '').strip()
-    amount = request.form.get('amount')
-    if not description or amount is None:
-        return redirect(url_for("index"))
-    try:
-        amount = float(amount)
-    except (ValueError, TypeError):
-        return redirect(url_for("index"))
+    expense_id = request.form['expense_id']
+    description = request.form['description']
+    amount = request.form['amount']
 
-    expense = db.session.get(Expense, expense_id)
+    expense = Expense.query.get(expense_id)
     if expense:
         expense.description = description
         expense.amount = amount
@@ -151,8 +138,3 @@ def update_expense():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
-
